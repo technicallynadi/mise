@@ -8,6 +8,10 @@
 
 The name comes from *mise en place* — everything in its place before you cook. Built with Next.js, OpenAI, and Supabase.
 
+<p align="center">
+  <img src="public/dish.svg" alt="An illustrated grain bowl — roasted vegetables, greens, cherry tomatoes, chickpeas and a soft egg — in warm neutral tones" width="720">
+</p>
+
 ## Features
 
 - **Recipe generation** from a list of ingredients, an uploaded photo, or both.
