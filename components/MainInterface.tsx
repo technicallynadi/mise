@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import type { User } from "@supabase/supabase-js";
 import { Plus, Upload } from "lucide-react";
+import { createClient } from "@/utils/supabase/client";
 import { toast } from "react-hot-toast";
 import IngredientInput from "./IngredientInput";
 import VibeSelector from "./VibeSelector";
@@ -19,6 +22,20 @@ export default function MainInterface() {
   const [generationProgress, setGenerationProgress] = useState<
     "idle" | "processing" | "saving" | "complete"
   >("idle");
+
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth
+      .getSession()
+      .then(({ data }) => setUser(data.session?.user ?? null));
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) =>
+      setUser(session?.user ?? null)
+    );
+    return () => sub.subscription.unsubscribe();
+  }, []);
 
   const handleAddIngredient = (ingredient: string) => {
     if (ingredient && !ingredients.includes(ingredient)) {
@@ -44,6 +61,12 @@ export default function MainInterface() {
     // Check if we have either ingredients or an image
     if (!currentInputValue.trim() && !uploadedImage) {
       toast.error("Please add ingredients and/or upload an image");
+      return;
+    }
+
+    if (!user) {
+      toast.error("Please sign in to generate recipes.");
+      router.push("/login");
       return;
     }
 
@@ -92,6 +115,12 @@ export default function MainInterface() {
             letMiseDecide: letMiseDecide,
           }),
         });
+      }
+
+      if (response.status === 401) {
+        toast.error("Please sign in to generate recipes.");
+        router.push("/login");
+        return;
       }
 
       if (!response.ok) {

@@ -61,9 +61,11 @@ lib/  utils/   Supabase client and helpers
 database/      SQL schema and seed data
 ```
 
-## Security note
+## Authentication
 
-Mise has no user accounts — it's a single shared recipe collection, and the API routes talk to Supabase with the service-role key. If you deploy it publicly, add authentication (or at least protect the create/update/delete and recipe-generation endpoints); otherwise anyone who can reach the API can change data or run up OpenAI usage.
+Browsing is open to everyone, but anything that writes data or spends money — creating, updating, deleting, and **generating** recipes — requires a signed-in user. It's enforced in [`middleware.ts`](middleware.ts) for every non-`GET` `/api` request, so it can't be bypassed from the client. Sign in at `/login` (Supabase email/password).
+
+To keep the collection to just you, disable open sign-ups in Supabase (**Authentication → Providers → Email →** turn off *Allow new users to sign up*) and create your own account from the Supabase dashboard.
 
 ## License
 
